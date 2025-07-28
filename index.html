@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Gibberish - Interactive Word Game</title>
+    <meta name="description" content="Challenge yourself with this fun and addictive word game! Decode gibberish phrases before time runs out.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="start-content">
+                <div class="title-section">
+                    <h1 class="main-title">Guess the Gibberish</h1>
+                    <p class="subtitle">Decode nonsense phrases before time runs out!</p>
+                    <div class="game-features">
+                        <div class="feature">
+                            <i data-lucide="timer"></i>
+                            <span>30 seconds per round</span>
+                        </div>
+                        <div class="feature">
+                            <i data-lucide="zap"></i>
+                            <span>Streak bonuses</span>
+                        </div>
+                        <div class="feature">
+                            <i data-lucide="trophy"></i>
+                            <span>10 rounds</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="difficulty-section">
+                    <h2 class="difficulty-title">Choose Your Difficulty</h2>
+                    
+                    <div class="difficulty-grid">
+                        <div class="difficulty-card" data-difficulty="easy">
+                            <div class="difficulty-icon easy">
+                                <i data-lucide="brain"></i>
+                            </div>
+                            <h3>Easy</h3>
+                            <p>Simple phrases, perfect for beginners</p>
+                            <div class="points">10 pts per answer</div>
+                            <button class="start-btn">Start Easy</button>
+                        </div>
+
+                        <div class="difficulty-card" data-difficulty="medium">
+                            <div class="difficulty-icon medium">
+                                <i data-lucide="zap"></i>
+                            </div>
+                            <h3>Medium</h3>
+                            <p>Moderate challenge with trickier phrases</p>
+                            <div class="points">20 pts per answer</div>
+                            <button class="start-btn">Start Medium</button>
+                        </div>
+
+                        <div class="difficulty-card" data-difficulty="hard">
+                            <div class="difficulty-icon hard">
+                                <i data-lucide="trophy"></i>
+                            </div>
+                            <h3>Hard</h3>
+                            <p>Expert level - really test your skills!</p>
+                            <div class="points">30 pts per answer</div>
+                            <button class="start-btn">Start Hard</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-section">
+                    <div class="example-card">
+                        <h3>Example:</h3>
+                        <div class="example-gibberish">"Eye Scream"</div>
+                        <div class="example-answer">= Ice Cream</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-content">
+                <div class="game-header">
+                    <h1 class="game-title">Guess the Gibberish</h1>
+                    <p class="difficulty-label" id="difficulty-label">Easy Mode</p>
+                </div>
+
+                <div class="progress-card">
+                    <div class="progress-info">
+                        <span id="round-text">Round 1 of 10</span>
+                        <span id="progress-percent">10%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <div class="stat">
+                        <i data-lucide="trophy"></i>
+                        <span>Score: <span id="score">0</span></span>
+                    </div>
+                    <div class="stat">
+                        <i data-lucide="zap"></i>
+                        <span>Streak: <span id="streak">0</span></span>
+                    </div>
+                    <div class="stat">
+                        <i data-lucide="timer" class="timer-icon"></i>
+                        <span class="timer-text"><span id="timer">30</span>s</span>
+                    </div>
+                </div>
+
+                <div class="main-game-card">
+                    <div class="game-content-inner">
+                        <div class="phrase-section">
+                            <h2>Decode this phrase:</h2>
+                            <div class="gibberish-text" id="gibberish-text">Eye Scream</div>
+                        </div>
+
+                        <div class="answer-section" id="answer-section">
+                            <div class="input-section">
+                                <input type="text" id="user-input" placeholder="Type your answer..." autocomplete="off">
+                                <div class="button-group">
+                                    <button id="submit-btn" class="submit-btn">Submit Answer</button>
+                                    <button id="skip-btn" class="skip-btn">Skip</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-section hidden" id="result-section">
+                            <p class="result-text" id="result-text">Answer: Ice Cream</p>
+                            <p class="next-text">Moving to next round...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <button id="new-game-btn" class="new-game-btn">
+                        <i data-lucide="rotate-ccw"></i>
+                        New Game
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="screen">
+            <div class="end-content">
+                <div class="end-header">
+                    <h1 class="end-title">Game Over!</h1>
+                    <div class="performance-message" id="performance-message">🏆 Outstanding!</div>
+                    <p class="end-difficulty" id="end-difficulty">Easy Mode Complete</p>
+                </div>
+
+                <div class="final-stats-card">
+                    <div class="final-score-section">
+                        <div class="final-score" id="final-score">0</div>
+                        <div class="final-score-label">Final Score</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <i data-lucide="target"></i>
+                            <div class="stat-value" id="accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat-item">
+                            <i data-lucide="zap"></i>
+                            <div class="stat-value" id="best-streak">0</div>
+                            <div class="stat-label">Best Streak</div>
+                        </div>
+                        <div class="stat-item">
+                            <i data-lucide="medal"></i>
+                            <div class="stat-value" id="total-correct">0</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-item">
+                            <i data-lucide="trophy"></i>
+                            <div class="stat-value" id="total-attempted">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="missed-phrases-card" id="missed-phrases-card">
+                    <h3>Review Missed Phrases</h3>
+                    <div class="missed-phrases-list" id="missed-phrases-list"></div>
+                </div>
+
+                <div class="end-actions">
+                    <button id="play-again-btn" class="play-again-btn">
+                        <i data-lucide="rotate-ccw"></i>
+                        Play Again
+                    </button>
+                    <button id="share-btn" class="share-btn">
+                        <i data-lucide="share-2"></i>
+                        Share Score
+                    </button>
+                </div>
+
+                <div class="motivational-message" id="motivational-message">
+                    Amazing streak! You're a gibberish master! 🎉
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data and constants
+        const GAME_PHRASES = [
+            // Easy
+            { gibberish: "Eye Scream", answer: "Ice Cream", difficulty: 'easy' },
+            { gibberish: "Bee Fore", answer: "Before", difficulty: 'easy' },
+            { gibberish: "See You Later", answer: "See You Later", difficulty: 'easy' },
+            { gibberish: "Won Dare Full", answer: "Wonderful", difficulty: 'easy' },
+            { gibberish: "Air Port", answer: "Airport", difficulty: 'easy' },
+            { gibberish: "Bass Kit Ball", answer: "Basketball", difficulty: 'easy' },
+            { gibberish: "Chock Lit", answer: "Chocolate", difficulty: 'easy' },
+            { gibberish: "Knee Dull", answer: "Needle", difficulty: 'easy' },
+            { gibberish: "Snow Ball", answer: "Snowball", difficulty: 'easy' },
+            { gibberish: "Chews Day", answer: "Tuesday", difficulty: 'easy' },
+            { gibberish: "Sand Witch", answer: "Sandwich", difficulty: 'easy' },
+            { gibberish: "Fee Male", answer: "Female", difficulty: 'easy' },
+            { gibberish: "Skare Crow", answer: "Scarecrow", difficulty: 'easy' },
+            { gibberish: "Bee Hind", answer: "Behind", difficulty: 'easy' },
+            { gibberish: "Dock Tour", answer: "Doctor", difficulty: 'easy' },
+            { gibberish: "Eye Ball", answer: "Eyeball", difficulty: 'easy' },
+            { gibberish: "Hiss Tori", answer: "History", difficulty: 'easy' },
+            { gibberish: "Toe Tall", answer: "Total", difficulty: 'easy' },
+            { gibberish: "Pee Nutt", answer: "Peanut", difficulty: 'easy' },
+            { gibberish: "Fire Works", answer: "Fireworks", difficulty: 'easy' },
+            
+            // Medium  
+            { gibberish: "Lack Toe Hose In Toll Her Ant", answer: "Lactose Intolerant", difficulty: 'medium' },
+            { gibberish: "Abe Ray Ham Link In", answer: "Abraham Lincoln", difficulty: 'medium' },
+            { gibberish: "Deck Hen Say Shun", answer: "Declaration", difficulty: 'medium' },
+            { gibberish: "Rhyme Moss Fir", answer: "Atmosphere", difficulty: 'medium' },
+            { gibberish: "Tea Mull Ache Shin", answer: "Termination", difficulty: 'medium' },
+            { gibberish: "Add Vent You're", answer: "Adventure", difficulty: 'medium' },
+            { gibberish: "In Dust Tree All", answer: "Industrial", difficulty: 'medium' },
+            { gibberish: "Mark Hen Tile", answer: "Mercantile", difficulty: 'medium' },
+            { gibberish: "Camp You Tar", answer: "Computer", difficulty: 'medium' },
+            { gibberish: "May Kupp Your Mind", answer: "Make Up Your Mind", difficulty: 'medium' },
+            { gibberish: "Ledge End Dairy", answer: "Legendary", difficulty: 'medium' },
+            { gibberish: "Have Hen You", answer: "Avenue", difficulty: 'medium' },
+            { gibberish: "Ree Spur It", answer: "Respirate", difficulty: 'medium' },
+            { gibberish: "Daylight Sew Ving", answer: "Daylight Saving", difficulty: 'medium' },
+            { gibberish: "Neigh Vague Ate Shun", answer: "Navigation", difficulty: 'medium' },
+            { gibberish: "Bus Kin Neigh", answer: "Buskin Knee", difficulty: 'medium' },
+            { gibberish: "Curb Ewe Later", answer: "Calculator", difficulty: 'medium' },
+            { gibberish: "Dock Yum Ent Tarry", answer: "Documentary", difficulty: 'medium' },
+            { gibberish: "Chew Bee Tea", answer: "Jubility", difficulty: 'medium' },
+            { gibberish: "Pea Knot Butt Her", answer: "Peanut Butter", difficulty: 'medium' },
+            
+            // Hard
+            { gibberish: "Sore Owe Mint Teas", answer: "Sororities", difficulty: 'hard' },
+            { gibberish: "Ill Loom In Naughty", answer: "Illuminati", difficulty: 'hard' },
+            { gibberish: "Mat Tree Moan Knee", answer: "Matrimony", difficulty: 'hard' },
+            { gibberish: "Rhyno Serous", answer: "Rhinoceros", difficulty: 'hard' },
+            { gibberish: "In Cog Neat Oh", answer: "Incognito", difficulty: 'hard' },
+            { gibberish: "Ack Whey Him", answer: "Aquarium", difficulty: 'hard' },
+            { gibberish: "Bee Yawn Say", answer: "Beyoncé", difficulty: 'hard' },
+            { gibberish: "Met Uh More Four Sis", answer: "Metamorphosis", difficulty: 'hard' },
+            { gibberish: "Pair Rye Mid", answer: "Pyramid", difficulty: 'hard' },
+            { gibberish: "Pear Uh Mints", answer: "Pyramids", difficulty: 'hard' },
+            { gibberish: "Eight Tree Shun", answer: "Attrition", difficulty: 'hard' },
+            { gibberish: "If Fence See", answer: "Efficiency", difficulty: 'hard' },
+            { gibberish: "Ail He Inn Eight Shun", answer: "Alienation", difficulty: 'hard' },
+            { gibberish: "Ink Oh Hear Ant", answer: "Incoherent", difficulty: 'hard' },
+            { gibberish: "Man Yew Fact Cheer Ink", answer: "Manufacturing", difficulty: 'hard' },
+            { gibberish: "Sigh Coll Oh Gist", answer: "Psychologist", difficulty: 'hard' },
+            { gibberish: "Tri Angle La Sure", answer: "Triangular Structure", difficulty: 'hard' },
+            { gibberish: "Sim Pull Ten Sissy", answer: "Simple Tendency", difficulty: 'hard' },
+            { gibberish: "Pear Ally Suss", answer: "Paralysis", difficulty: 'hard' },
+            { gibberish: "Ape Pit Tie Zer", answer: "Appetizer", difficulty: 'hard' },
+        ];
+
+        const TIMER_DURATION = 30;
+
+        // Game state
+        let gameState = {
+            currentScreen: 'start',
+            difficulty: null,
+            currentRound: 0,
+            timeLeft: TIMER_DURATION,
+            score: 0,
+            streak: 0,
+            longestStreak: 0,
+            totalCorrect: 0,
+            totalAttempted: 0,
+            missedPhrases: [],
+            gamePhrases: [],
+            isAnswering: false,
+            showAnswer: false,
+            timer: null
+        };
+
+        // DOM elements
+        const elements = {
+            startScreen: document.getElementById('start-screen'),
+            gameScreen: document.getElementById('game-screen'),
+            endScreen: document.getElementById('end-screen'),
+            difficultyCards: document.querySelectorAll('.difficulty-card'),
+            difficultyLabel: document.getElementById('difficulty-label'),
+            roundText: document.getElementById('round-text'),
+            progressPercent: document.getElementById('progress-percent'),
+            progressFill: document.getElementById('progress-fill'),
+            score: document.getElementById('score'),
+            streak: document.getElementById('streak'),
+            timer: document.getElementById('timer'),
+            timerIcon: document.querySelector('.timer-icon'),
+            timerText: document.querySelector('.timer-text'),
+            gibberishText: document.getElementById('gibberish-text'),
+            userInput: document.getElementById('user-input'),
+            submitBtn: document.getElementById('submit-btn'),
+            skipBtn: document.getElementById('skip-btn'),
+            answerSection: document.getElementById('answer-section'),
+            resultSection: document.getElementById('result-section'),
+            resultText: document.getElementById('result-text'),
+            newGameBtn: document.getElementById('new-game-btn'),
+            playAgainBtn: document.getElementById('play-again-btn'),
+            shareBtn: document.getElementById('share-btn'),
+            performanceMessage: document.getElementById('performance-message'),
+            endDifficulty: document.getElementById('end-difficulty'),
+            finalScore: document.getElementById('final-score'),
+            accuracy: document.getElementById('accuracy'),
+            bestStreak: document.getElementById('best-streak'),
+            totalCorrect: document.getElementById('total-correct'),
+            totalAttempted: document.getElementById('total-attempted'),
+            missedPhrasesCard: document.getElementById('missed-phrases-card'),
+            missedPhrasesList: document.getElementById('missed-phrases-list'),
+            motivationalMessage: document.getElementById('motivational-message'),
+            toastContainer: document.getElementById('toast-container')
+        };
+
+        // Toast notification system
+        function showToast(title, description, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            toast.innerHTML = `
+                <div class="toast-title">${title}</div>
+                <div class="toast-description">${description}</div>
+            `;
+            
+            elements.toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remove toast
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Screen management
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            const screen = document.getElementById(`${screenName}-screen`);
+            if (screen) {
+                screen.classList.add('active');
+            }
+            
+            gameState.currentScreen = screenName;
+        }
+
+        // Game phrase management
+        function getPhrasesForDifficulty(difficulty) {
+            const filtered = GAME_PHRASES.filter(phrase => phrase.difficulty === difficulty);
+            return shuffleArray(filtered).slice(0, 10);
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Game logic
+        function startGame(difficulty) {
+            gameState.difficulty = difficulty;
+            gameState.gamePhrases = getPhrasesForDifficulty(difficulty);
+            gameState.currentRound = 0;
+            gameState.timeLeft = TIMER_DURATION;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.longestStreak = 0;
+            gameState.totalCorrect = 0;
+            gameState.totalAttempted = 0;
+            gameState.missedPhrases = [];
+            gameState.isAnswering = false;
+            gameState.showAnswer = false;
+            
+            updateGameUI();
+            showScreen('game');
+            startTimer();
+            
+            // Focus input
+            elements.userInput.focus();
+        }
+
+        function updateGameUI() {
+            const currentPhrase = gameState.gamePhrases[gameState.currentRound];
+            const progress = ((gameState.currentRound + 1) / gameState.gamePhrases.length) * 100;
+            
+            // Update header
+            elements.difficultyLabel.textContent = `${gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1)} Mode`;
+            
+            // Update progress
+            elements.roundText.textContent = `Round ${gameState.currentRound + 1} of ${gameState.gamePhrases.length}`;
+            elements.progressPercent.textContent = `${Math.round(progress)}%`;
+            elements.progressFill.style.width = `${progress}%`;
+            
+            // Update stats
+            elements.score.textContent = gameState.score;
+            elements.streak.textContent = gameState.streak;
+            elements.timer.textContent = gameState.timeLeft;
+            
+            // Update timer color
+            updateTimerColor();
+            
+            // Update phrase
+            if (currentPhrase) {
+                // Add fade-out animation before updating text
+                elements.gibberishText.classList.remove('fade-in');
+                elements.gibberishText.classList.add('fade-out');
+
+                setTimeout(() => {
+                    elements.gibberishText.textContent = currentPhrase.gibberish;
+                    elements.gibberishText.classList.remove('fade-out');
+                    elements.gibberishText.classList.add('fade-in');
+                }, 400); // Match the fadeOut duration
+            }
+            
+            // Reset input
+            elements.userInput.value = '';
+            elements.userInput.disabled = false;
+            elements.submitBtn.disabled = false;
+            elements.skipBtn.disabled = false;
+            
+            // Show/hide sections
+            elements.answerSection.classList.remove('hidden');
+            elements.resultSection.classList.add('hidden');
+        }
+
+        function updateTimerColor() {
+            elements.timerIcon.classList.remove('warning', 'danger');
+            elements.timerText.classList.remove('warning', 'danger');
+            
+            if (gameState.timeLeft <= 5) {
+                elements.timerIcon.classList.add('danger');
+                elements.timerText.classList.add('danger');
+            } else if (gameState.timeLeft <= 10) {
+                elements.timerIcon.classList.add('warning');
+                elements.timerText.classList.add('warning');
+            }
+        }
+
+        function startTimer() {
+            clearInterval(gameState.timer);
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                elements.timer.textContent = gameState.timeLeft;
+                updateTimerColor();
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    showToast("⏱️ Time's up!", "Moving to next round...", 'error');
+                    skipRound();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer() {
+            if (gameState.isAnswering || gameState.gamePhrases.length === 0) return;
+
+            const userAnswerRaw = elements.userInput.value;
+            const userAnswer = userAnswerRaw.toLowerCase().trim();
+
+            // 🚫 Prevent blank input BEFORE stopping the timer
+            if (userAnswer.length === 0) {
+                showToast("⚠️ No input!", "Please type your answer before submitting.", "error");
+                return;
+            }
+
+            gameState.isAnswering = true;
+            clearInterval(gameState.timer);
+
+            const currentPhrase = gameState.gamePhrases[gameState.currentRound];
+            const correctAnswer = currentPhrase.answer.toLowerCase().trim();
+            const isCorrect = userAnswer === correctAnswer;
+
+            gameState.totalAttempted++;
+
+            if (isCorrect) {
+                gameState.totalCorrect++;
+                const basePoints = gameState.difficulty === 'easy' ? 10 : gameState.difficulty === 'medium' ? 20 : 30;
+                const streakBonus = gameState.streak * 5;
+                const totalPoints = basePoints + streakBonus;
+
+                gameState.score += totalPoints;
+                gameState.streak++;
+                gameState.longestStreak = Math.max(gameState.longestStreak, gameState.streak);
+
+                showToast("✅ Correct!", `+${totalPoints} points!`, 'success');
+
+                if (gameState.streak >= 3) {
+                    showToast(`🔥 ${gameState.streak} in a row!`, "You're on fire!", 'streak');
+                }
+            } else {
+                gameState.streak = 0;
+                gameState.missedPhrases.push({
+                    gibberish: currentPhrase.gibberish,
+                    answer: currentPhrase.answer
+                });
+
+                showToast("❌ Incorrect", `The answer was: ${currentPhrase.answer}`, 'error');
+            }
+
+            // Update UI immediately
+            elements.score.textContent = gameState.score;
+            elements.streak.textContent = gameState.streak;
+
+            // Show answer
+            showAnswerResult(currentPhrase.answer);
+
+            // Disable input
+            elements.userInput.disabled = true;
+            elements.submitBtn.disabled = true;
+            elements.skipBtn.disabled = true;
+
+            // Move to next round after delay
+            setTimeout(() => {
+                if (gameState.currentRound + 1 >= gameState.gamePhrases.length) {
+                    endGame();
+                } else {
+                    gameState.currentRound++;
+                    gameState.timeLeft = TIMER_DURATION;
+                    gameState.isAnswering = false;
+                    gameState.showAnswer = false;
+                    updateGameUI();
+                    startTimer();
+                    elements.userInput.focus();
+                }
+            }, 2000);
+        }
+
+
+        function skipRound() {
+            if (gameState.isAnswering || gameState.gamePhrases.length === 0) return;
+            
+            clearInterval(gameState.timer);
+            
+            const currentPhrase = gameState.gamePhrases[gameState.currentRound];
+            gameState.totalAttempted++;
+            gameState.streak = 0;
+            gameState.missedPhrases.push({
+                gibberish: currentPhrase.gibberish,
+                answer: currentPhrase.answer
+            });
+            
+            elements.streak.textContent = gameState.streak;
+            
+            showToast("⏭️ Skipped", `The answer was: ${currentPhrase.answer}`, 'error');
+            
+            if (gameState.currentRound + 1 >= gameState.gamePhrases.length) {
+                endGame();
+            } else {
+                gameState.currentRound++;
+                gameState.timeLeft = TIMER_DURATION;
+                updateGameUI();
+                startTimer();
+                elements.userInput.focus();
+            }
+        }
+
+        function showAnswerResult(answer) {
+            elements.resultText.textContent = `Answer: ${answer}`;
+            elements.answerSection.classList.add('hidden');
+            elements.resultSection.classList.remove('hidden');
+            elements.resultSection.classList.add('bounce-in');
+        }
+
+        function endGame() {
+            clearInterval(gameState.timer);
+            showScreen('end');
+            updateEndScreen();
+        }
+
+        function updateEndScreen() {
+            const accuracyPercentage = gameState.totalAttempted > 0 
+                ? Math.round((gameState.totalCorrect / gameState.totalAttempted) * 100) 
+                : 0;
+            
+            // Performance message
+            const performanceData = getPerformanceMessage(accuracyPercentage);
+            elements.performanceMessage.textContent = performanceData.text;
+            elements.performanceMessage.className = `performance-message ${performanceData.className}`;
+            
+            // Basic info
+            elements.endDifficulty.textContent = `${gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1)} Mode Complete`;
+            elements.finalScore.textContent = gameState.score;
+            
+            // Stats
+            elements.accuracy.textContent = `${accuracyPercentage}%`;
+            elements.bestStreak.textContent = gameState.longestStreak;
+            elements.totalCorrect.textContent = gameState.totalCorrect;
+            elements.totalAttempted.textContent = gameState.totalAttempted;
+            
+            // Missed phrases
+            if (gameState.missedPhrases.length > 0) {
+                elements.missedPhrasesCard.style.display = 'block';
+                elements.missedPhrasesList.innerHTML = '';
+                
+                gameState.missedPhrases.forEach(phrase => {
+                    const missedDiv = document.createElement('div');
+                    missedDiv.className = 'missed-phrase';
+                    missedDiv.innerHTML = `
+                        <div class="missed-gibberish">"${phrase.gibberish}"</div>
+                        <div class="missed-answer">= ${phrase.answer}</div>
+                    `;
+                    elements.missedPhrasesList.appendChild(missedDiv);
+                });
+            } else {
+                elements.missedPhrasesCard.style.display = 'none';
+            }
+            
+            // Motivational message
+            elements.motivationalMessage.textContent = getMotivationalMessage();
+        }
+
+        function getPerformanceMessage(accuracy) {
+            if (accuracy >= 90) return { text: "🏆 Outstanding!", className: "outstanding" };
+            if (accuracy >= 75) return { text: "🌟 Excellent!", className: "excellent" };
+            if (accuracy >= 60) return { text: "👍 Good Job!", className: "good" };
+            if (accuracy >= 40) return { text: "🎯 Keep Practicing!", className: "okay" };
+            return { text: "💪 Try Again!", className: "retry" };
+        }
+
+        function getMotivationalMessage() {
+            if (gameState.longestStreak >= 5) {
+                return "Amazing streak! You're a gibberish master! 🎉";
+            } else if (gameState.totalCorrect >= 8) {
+                return "Fantastic job! Your brain is sharp! 🧠";
+            } else if (gameState.totalCorrect >= 5) {
+                return "Good work! Keep practicing to improve! 💪";
+            } else {
+                return "Don't give up! Every expert was once a beginner! 🌟";
+            }
+        }
+
+        function shareScore() {
+            const accuracyPercentage = gameState.totalAttempted > 0 
+                ? Math.round((gameState.totalCorrect / gameState.totalAttempted) * 100) 
+                : 0;
+            
+            const shareText = `I just scored ${gameState.score} points in Guess the Gibberish (${gameState.difficulty} mode)! ${accuracyPercentage}% accuracy with a ${gameState.longestStreak}-round streak! 🧠✨`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Guess the Gibberish - My Score',
+                    text: shareText,
+                    url: window.location.href
+                }).catch(() => {
+                    // Fallback to clipboard
+                    copyToClipboard(shareText);
+                });
+            } else {
+                copyToClipboard(shareText);
+            }
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("📋 Copied to clipboard!", "Share your score with friends!", 'success');
+                });
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast("📋 Copied to clipboard!", "Share your score with friends!", 'success');
+            }
+        }
+
+        function resetGame() {
+            clearInterval(gameState.timer);
+            showScreen('start');
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            // Difficulty selection
+            elements.difficultyCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const difficulty = card.dataset.difficulty;
+                    startGame(difficulty);
+                });
+            });
+            
+            // Game controls
+            elements.submitBtn.addEventListener('click', checkAnswer);
+            elements.skipBtn.addEventListener('click', skipRound);
+            elements.newGameBtn.addEventListener('click', resetGame);
+            elements.playAgainBtn.addEventListener('click', resetGame);
+            elements.shareBtn.addEventListener('click', shareScore);
+            
+            // Input handling
+            elements.userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !gameState.showAnswer && !gameState.isAnswering) {
+                    checkAnswer();
+                }
+            });
+            
+            elements.userInput.addEventListener('input', () => {
+                const hasInput = elements.userInput.value.trim().length > 0;
+                elements.submitBtn.disabled = !hasInput || gameState.isAnswering;
+            });
+        }
+
+        // Initialize game
+        function initGame() {
+            setupEventListeners();
+            showScreen('start');
+            
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Start the game when the page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+
+    </script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
